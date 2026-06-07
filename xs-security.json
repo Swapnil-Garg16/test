@@ -1,0 +1,139 @@
+{
+  "xsappname": "procurement-app",
+  "tenant-mode": "dedicated",
+  "description": "Security descriptor for the Procurement application",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Display",
+      "description": "Display procurement data"
+    },
+    {
+      "name": "$XSAPPNAME.Edit",
+      "description": "Create and edit purchase orders"
+    },
+    {
+      "name": "$XSAPPNAME.Approve",
+      "description": "Approve purchase orders"
+    },
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "Administer the procurement application"
+    },
+    {
+      "name": "uaa.user",
+      "description": "UAA standard scope for authenticated users"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "CostCenter",
+      "description": "Cost center the user is allowed to act on",
+      "valueType": "string"
+    },
+    {
+      "name": "ApprovalLimit",
+      "description": "Maximum monetary value the user may approve",
+      "valueType": "int"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Viewer",
+      "description": "Read-only access to procurement data",
+      "scope-references": [
+        "$XSAPPNAME.Display",
+        "uaa.user"
+      ],
+      "attribute-references": [
+        "CostCenter"
+      ]
+    },
+    {
+      "name": "Buyer",
+      "description": "Create and edit purchase orders",
+      "scope-references": [
+        "$XSAPPNAME.Display",
+        "$XSAPPNAME.Edit",
+        "uaa.user"
+      ],
+      "attribute-references": [
+        "CostCenter"
+      ]
+    },
+    {
+      "name": "Approver",
+      "description": "Approve purchase orders up to an approval limit",
+      "scope-references": [
+        "$XSAPPNAME.Display",
+        "$XSAPPNAME.Approve",
+        "uaa.user"
+      ],
+      "attribute-references": [
+        "CostCenter",
+        "ApprovalLimit"
+      ]
+    },
+    {
+      "name": "Administrator",
+      "description": "Full administrative access",
+      "default-role-name": "Procurement Administrator",
+      "scope-references": [
+        "$XSAPPNAME.Display",
+        "$XSAPPNAME.Edit",
+        "$XSAPPNAME.Approve",
+        "$XSAPPNAME.Admin",
+        "uaa.user"
+      ],
+      "attribute-references": []
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "Procurement_Viewer",
+      "description": "Procurement viewer role collection",
+      "role-template-references": [
+        "$XSAPPNAME.Viewer"
+      ]
+    },
+    {
+      "name": "Procurement_Buyer",
+      "description": "Procurement buyer role collection",
+      "role-template-references": [
+        "$XSAPPNAME.Viewer",
+        "$XSAPPNAME.Buyer"
+      ]
+    },
+    {
+      "name": "Procurement_Approver",
+      "description": "Procurement approver role collection",
+      "role-template-references": [
+        "$XSAPPNAME.Approver"
+      ]
+    },
+    {
+      "name": "Procurement_Administrator",
+      "description": "Procurement administrator role collection",
+      "role-template-references": [
+        "$XSAPPNAME.Administrator"
+      ]
+    }
+  ],
+  "oauth2-configuration": {
+    "token-validity": 3600,
+    "refresh-token-validity": 7200,
+    "redirect-uris": [
+      "https://*.example.com/**",
+      "https://procurement-app.cfapps.eu10.hana.ondemand.com/**"
+    ],
+    "system-attributes": [
+      "groups",
+      "rolecollections"
+    ],
+    "autoapprove": true,
+    "grant-types": [
+      "authorization_code",
+      "client_credentials",
+      "refresh_token"
+    ]
+  }
+}
